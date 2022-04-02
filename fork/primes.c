@@ -83,7 +83,7 @@ calculate_primes(int recv_from_parent_pipe, long int max)
 {
 	long int current_num;
 	int send_to_child_pipe = -1;
-	int process_pid = getpid();
+	//int process_pid = getpid();
 
 	read_from_pipe(recv_from_parent_pipe,
 	               &current_num,
@@ -91,7 +91,7 @@ calculate_primes(int recv_from_parent_pipe, long int max)
 	               "Error de lectura");
 
 	long int current_prime = current_num;
-	printf("Proceso %d: primo: %li\n", getpid(), current_prime);
+	printf("primo %li\n", current_prime);
 
 	char err_pipe_msg[80];
 	// sprintf(err_pipe_msg, "Error al crear el pipe principal en la iteracion del primo %li\n", current_prime);
@@ -124,8 +124,7 @@ calculate_primes(int recv_from_parent_pipe, long int max)
 					/* child process*/
 
 					current_prime = current_num;
-					printf("Proceso %d: primo: %li\n",
-					       getpid(),
+					printf("primo %li\n",
 					       current_prime);
 					close(child_pipe[1]);
 					// printf("B) Proceso %d: Se cierra el fd: %d\n", getpid(), child_pipe[1]);
@@ -207,7 +206,7 @@ main(int argc, char *argv[])
 
 	long int num = get_validated_number(argv);
 
-	printf("Numero ingresado: %li\n", num);
+	//printf("Numero ingresado: %li\n", num);
 
 	if (num < 2) {
 		printf("No existen numeros primos\n");

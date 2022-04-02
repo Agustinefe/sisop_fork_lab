@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/times.h>
+#include <sys/wait.h>
 
 void create_pipe(int pipedf[], char *err_msg);
 void write_in_pipe(int pipe, void *buf, size_t count);
@@ -139,6 +140,7 @@ main(void)
 
 		close(child_to_parent_pipedf[0]);
 		close(parent_to_child_pipedf[1]);
+		//wait(NULL);
 	}
 
 	fclose(stdin);

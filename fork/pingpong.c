@@ -140,7 +140,7 @@ main(void)
 
 		close(child_to_parent_pipedf[0]);
 		close(parent_to_child_pipedf[1]);
-		//wait(NULL);
+		wait(NULL);
 	}
 
 	fclose(stdin);

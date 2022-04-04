@@ -23,7 +23,6 @@ create_pipe(int pipedf[], char *err_msg)
 		perror(err_msg);
 		exit(-1);
 	}
-
 }
 
 void
@@ -83,7 +82,7 @@ calculate_primes(int recv_from_parent_pipe, long int max)
 {
 	long int current_num;
 	int send_to_child_pipe = -1;
-	//int process_pid = getpid();
+	// int process_pid = getpid();
 
 	read_from_pipe(recv_from_parent_pipe,
 	               &current_num,
@@ -124,8 +123,7 @@ calculate_primes(int recv_from_parent_pipe, long int max)
 					/* child process*/
 
 					current_prime = current_num;
-					printf("primo %li\n",
-					       current_prime);
+					printf("primo %li\n", current_prime);
 					close(child_pipe[1]);
 					// printf("B) Proceso %d: Se cierra el fd: %d\n", getpid(), child_pipe[1]);
 					close(recv_from_parent_pipe);
@@ -175,7 +173,6 @@ calculate_primes(int recv_from_parent_pipe, long int max)
 		              sizeof(current_num),
 		              err_write_msg);
 		// printf("Proceso %d: ========== CHITO ==========\n", getpid());
-		
 	}
 
 	close(recv_from_parent_pipe);
@@ -184,16 +181,14 @@ calculate_primes(int recv_from_parent_pipe, long int max)
 
 	/*
 	if (process_pid == 0) {
-		close(recv_from_parent_pipe);
-		// printf("F) Proceso %d: Se cierra el fd: %d\n", getpid(), recv_from_parent_pipe);
-	} else {
-		close(send_to_child_pipe);
-		// printf("G) Proceso %d: Se cierra el fd: %d\n", getpid(), send_to_child_pipe);
+	        close(recv_from_parent_pipe);
+	        // printf("F) Proceso %d: Se cierra el fd: %d\n", getpid(),
+	recv_from_parent_pipe); } else { close(send_to_child_pipe);
+	        // printf("G) Proceso %d: Se cierra el fd: %d\n", getpid(),
+	send_to_child_pipe);
 	}
 	*/
 	wait(NULL);
-
-
 }
 
 int
@@ -206,7 +201,7 @@ main(int argc, char *argv[])
 
 	long int num = get_validated_number(argv);
 
-	//printf("Numero ingresado: %li\n", num);
+	// printf("Numero ingresado: %li\n", num);
 
 	if (num < 2) {
 		printf("No existen numeros primos\n");
@@ -253,4 +248,3 @@ main(int argc, char *argv[])
 
 	exit(0);
 }
-

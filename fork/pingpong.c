@@ -42,70 +42,38 @@ main(void)
 	srandom(times(NULL));
 	int parent_to_child_pipedf[2]; /* pipe[0]: child reads, pipe[1]: parent writes */
 	int child_to_parent_pipedf[2]; /* pipe[0]: parent reads, pipe[1:] child writes */
-	int process_pid;
+
+	printf("Hola, soy PID %d:\n", getpid());
 
 	create_pipe(parent_to_child_pipedf, "Error en pipe de padre a hijo\n");
 	create_pipe(child_to_parent_pipedf, "Error en pipe de hijo a padre\n");
 
-	process_pid = fork();
+	printf("	- primer pipe me devuelve: [%d, %d]\n",
+		parent_to_child_pipedf[0],
+		parent_to_child_pipedf[1]);
 
-	int recv_pair_buf[2];
-	int recv_ran_buf;
+	printf("	- segundo pipe me devuelve: [%d, %d]\n",
+		child_to_parent_pipedf[0],
+		child_to_parent_pipedf[1]);
 
-	if (process_pid < 0) {
+	int process_pid;
+
+	if ((process_pid = fork()) < 0) {
 		perror("Error en fork\n");
 		exit(-1);
-	}
-
-	if (process_pid == 0) {
-		/* child process */
-
-		/* close unused pipes for child*/
-		close(parent_to_child_pipedf[1]);
-		close(child_to_parent_pipedf[0]);
-
-		read_from_pipe(parent_to_child_pipedf[0],
-		               &recv_pair_buf,
-		               sizeof(recv_pair_buf));
-		printf("	- primer pipe me devuelve: [%d, %d]\n",
-		       recv_pair_buf[0],
-		       recv_pair_buf[1]);
-
-		recv_pair_buf[0] += 3;
-		recv_pair_buf[1] += 3;
-		write_in_pipe(child_to_parent_pipedf[1],
-		              &recv_pair_buf,
-		              sizeof(recv_pair_buf));
-
-		read_from_pipe(parent_to_child_pipedf[0],
-		               &recv_ran_buf,
-		               sizeof(recv_ran_buf));
-	} else {
-		/* parent process */
-
-		/* close unused pipes for parent*/
-		close(child_to_parent_pipedf[1]);
-		close(parent_to_child_pipedf[0]);
-
-		printf("Hola, soy PID %d:\n", getpid());
-
-		int msg[2] = { 3, 4 };
-		write_in_pipe(parent_to_child_pipedf[1], &msg, sizeof(msg));
-
-		read_from_pipe(child_to_parent_pipedf[0],
-		               &recv_pair_buf,
-		               sizeof(recv_pair_buf));
-		printf("	- segundo pipe me devuelve: [%d, %d]\n",
-		       recv_pair_buf[0],
-		       recv_pair_buf[1]);
 	}
 
 	printf("Donde fork me devuelve %d:\n", process_pid);
 	printf("	- getpid me devuelve: %d\n", getpid());
 	printf("	- getppid me devuelve: %d\n", getppid());
 
+	int send_ran_buf;
+	int recv_ran_buf;
+
 	if (process_pid == 0) {
 		/* child process */
+
+		read_from_pipe(parent_to_child_pipedf[0], &recv_ran_buf, sizeof(recv_ran_buf));
 
 		printf("	- recibo valor %d vía fd=%d\n",
 		       recv_ran_buf,
@@ -122,12 +90,12 @@ main(void)
 	} else {
 		/* parent process */
 
-		int ran = random();
-		printf("	- random me devuelve: %d\n", ran);
+		send_ran_buf = random();
+		printf("	- random me devuelve: %d\n", send_ran_buf);
 
-		write_in_pipe(parent_to_child_pipedf[1], &ran, sizeof(ran));
+		write_in_pipe(parent_to_child_pipedf[1], &send_ran_buf, sizeof(send_ran_buf));
 		printf("	- envío valor %d a traves de fd=%d\n",
-		       ran,
+		       send_ran_buf,
 		       parent_to_child_pipedf[1]);
 
 		read_from_pipe(child_to_parent_pipedf[0],
@@ -135,17 +103,13 @@ main(void)
 		               sizeof(recv_ran_buf));
 		printf("Hola, de nuevo PID %d:\n", getpid());
 		printf("	- recibí valor %d vía fd=%d\n",
-		       ran,
+		       recv_ran_buf,
 		       child_to_parent_pipedf[0]);
 
 		close(child_to_parent_pipedf[0]);
 		close(parent_to_child_pipedf[1]);
 		wait(NULL);
 	}
-
-	fclose(stdin);
-	fclose(stdout);
-	fclose(stderr);
 
 	exit(0);
 }

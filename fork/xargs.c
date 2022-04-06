@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 #ifndef NARGS
 #define NARGS 4
@@ -19,12 +20,19 @@ void execute_command(char* argv[], size_t argv_size) {
 
 	argv[argv_size] = NULL;
 
-	if (fork() == 0) {
-		execvp(argv[0], argv);
-	} else {
-		wait(NULL);
+	int pid = fork();
+
+	if (pid < 0) {
+		perror("Ha ocurrido un problema con el fork\n");
+		exit(-1);
 	}
 
+	if (pid == 0) {
+		int err = execvp(argv[0], argv);
+		if (err == errno) perror("No se ha podido ejecutar el comando\n");
+	} 
+
+	wait(NULL);
 }
 
 void clean_newline(char *arg, ssize_t read_bytes) {
